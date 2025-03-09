@@ -1,8 +1,5 @@
-# Web_Development_with_React_and_Python_Flask_Long_Term_Module_3_Assignment_2
+# _Assignment_2
 
-### **README.md**
-
-```markdown
 # IELTS Speaking Test Platform
 
 A dynamic frontend application built with React and TypeScript for the IELTS Speaking Test platform. This project includes core components like Header, Footer, and Dashboard, and is set up using Vite for a fast and optimized development experience.
