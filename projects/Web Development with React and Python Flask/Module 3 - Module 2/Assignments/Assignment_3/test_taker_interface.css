@@ -1,0 +1,151 @@
+/* Basic reset */
+body, h1, h2, p, form, label, input, select, button {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    box-sizing: border-box;
+  }
+  
+  body {
+    background-color: #f4f7fa;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  /* Blue Upper Section */
+  .blue-section {
+    background-color: #003366; /* Dark blue */
+    color: white;
+    padding: 60px 20px;
+    text-align: center;
+    border-bottom-left-radius: 50% 20%;
+    border-bottom-right-radius: 50% 20%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .blue-section h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  
+  .blue-section p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    font-weight: 300;
+  }
+  
+  /* White Middle Section */
+  main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  section {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    margin-top: -50px; /* Overlap with blue section */
+  }
+  
+  h2 {
+    font-size: 1.75rem;
+    margin-bottom: 20px;
+    color: #003366;
+    text-align: center;
+    font-weight: 600;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  label {
+    font-size: 1rem;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #003366;
+  }
+  
+  input, select {
+    padding: 12px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  input:focus, select:focus {
+    border-color: #003366;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 51, 102, 0.3);
+  }
+  
+  button {
+    padding: 12px;
+    background-color: #003366;
+    color: white;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  button:hover {
+    background-color: #00509e;
+    transform: translateY(-2px);
+  }
+  
+  button:active {
+    transform: translateY(0);
+  }
+  
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #003366;
+    color: white;
+    margin-top: auto;
+    font-size: 0.9rem;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .blue-section h1 {
+        font-size: 2rem;
+    }
+  
+    .blue-section p {
+        font-size: 1rem;
+    }
+  
+    section {
+        padding: 20px;
+        margin-top: -30px;
+    }
+  
+    h2 {
+        font-size: 1.5rem;
+    }
+  
+    input, select, button {
+        font-size: 0.9rem;
+    }
+  }

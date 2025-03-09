@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="IELTS Speaking Test Taker Interface - Enter your details to start the test.">
+    <title>IELTS Speaking Test - Test Taker Interface</title>
+    <link rel="stylesheet" href="test_taker_interface.css">
+</head>
+
+<body>
+    <!-- Blue Upper Section -->
+    <div class="blue-section">
+        <header>
+            <h1>IELTS Speaking Test - Test Taker Interface</h1>
+            <p>Welcome! Please enter your details to begin the test.</p>
+        </header>
+    </div>
+
+    <!-- White Middle Section -->
+    <main>
+        <section aria-labelledby="form-heading">
+            <h2 id="form-heading">Enter Your Details</h2>
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required placeholder="John Doe" aria-label="Full Name">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="example@domain.com" aria-label="Email Address">
+                </div>
+
+                <div class="form-group">
+                    <label for="test_section">Test Section</label>
+                    <select id="test_section" name="test_section" required aria-label="Select Test Section">
+                        <option value="" disabled selected>Select your section</option>
+                        <option value="speaking">Speaking</option>
+                        <option value="listening">Listening</option>
+                        <option value="writing">Writing</option>
+                    </select>
+                </div>
+
+                <button type="submit">Start Test</button>
+            </form>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 IELTS Test Platform. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>
