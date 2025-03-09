@@ -1,0 +1,16 @@
+.header {
+    background-color: #282c34;
+    padding: 1rem;
+    color: white;
+    text-align: center;
+  }
+  
+  .nav-link {
+    color: white;
+    margin: 0 1rem;
+    text-decoration: none;
+  }
+  
+  .nav-link:hover {
+    text-decoration: underline;
+  }
