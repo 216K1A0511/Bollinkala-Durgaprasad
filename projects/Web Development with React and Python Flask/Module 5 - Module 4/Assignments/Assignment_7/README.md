@@ -140,6 +140,6 @@ Contributions are welcome! If you'd like to contribute, please follow these step
 For questions or feedback, please reach out to:
 
 - **Your Name**  
-- **Email**: your.email@example.com  
+- **Email**: durgaprasad201803@gmail.com  
 - **GitHub**: [216K1A0511](https://github.com/216K1A0511)
 
