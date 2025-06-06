@@ -166,13 +166,4 @@ def unhandled_exception(e):
 
 ---
 
-## ⚙️ Notes & Best Practices
 
-* Do **not** log sensitive user information.
-* Use `logger.exception()` to capture tracebacks automatically for unhandled errors.
-* Logging format should support future integration with monitoring tools like ELK Stack or Sentry.
-* Maintain separation of concerns between middleware, routes, and logging.
-
----
-
-Let me know if you'd like the actual `app.py` code prewritten for you!
