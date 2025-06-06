@@ -1,67 +1,178 @@
+Here's the **merged and organized `README.md`** for **Assignment 14: Implement Logging and Error Handling**, incorporating the **detailed implementation steps** with the **original requirements and structure**:
 
-1. Setup Flask Application
-   Initialize a Flask app.
+---
 
-Structure your project with a main app.py file.
+# Assignment 14: Implement Logging and Error Handling
 
-2. Configure Structured Logging
-   Use Python’s logging module.
+## 🎯 Objective
 
-Set log file name, format (timestamp, level, message), and level (INFO or ERROR).
+Enhance the backend of the **IELTS Speaking Test Platform** by adding structured logging and middleware for request validation and error handling. These improvements will help monitor API usage, identify errors, and debug efficiently.
 
-Ensure logs include metadata: request path, status codes, and error details.
+---
 
-3. Implement Request Validation Middleware
-   Use @app.before_request to check incoming request data.
+## 📘 Scenario
 
-Validate:
+To ensure efficient backend operations and effective error tracking in production, this assignment involves:
 
-Content-Type is application/json.
+* Validating incoming API requests.
+* Logging structured metadata.
+* Implementing graceful error responses.
 
-Required fields (e.g., question) are present.
+---
 
-Return a 400 error if validation fails.
+## ✅ Implementation Steps
 
-Log validation errors.
+### 1. Setup Flask Application
 
-4. Define API Endpoint
-   Create a POST route /api/speaking-test.
+* Initialize a Flask app.
+* Create a file named `app.py` as the main entry point.
+* Use a standard project structure:
 
-Process the question field from the JSON body.
+  ```
+  project/
+  ├── app.py
+  ├── app.log
+  └── README.md
+  ```
 
-Log successful API calls.
+### 2. Configure Structured Logging
 
-5. Implement Error Handling Middleware
-   Use @app.errorhandler for:
+* Use Python’s built-in `logging` module.
+* Set log file name (`app.log`), format, and logging level (e.g., `INFO`, `ERROR`).
+* Log format should include:
 
-400 Bad Request
+  * Timestamp
+  * Log level
+  * Request method and path
+  * Status code
+  * Error details (if any)
 
-404 Not Found
+```python
+import logging
 
-500 Internal Server Error
+logging.basicConfig(
+    filename='app.log',
+    level=logging.INFO,
+    format='[%(asctime)s] %(levelname)s: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
+```
 
-Exception for unhandled errors
+### 3. Implement Request Validation Middleware
 
-Return user-friendly JSON messages.
+* Use `@app.before_request` to validate requests before they reach the endpoint.
+* Check:
 
-Log error details using logger.error() or logger.exception().
+  * `Content-Type` is `application/json`
+  * Required field: `"question"`
+* Return `400 Bad Request` if validation fails.
+* Log validation errors.
 
-6. Testing
-   Simulate valid and invalid requests using tools like Postman or curl.
+```python
+from flask import request, jsonify
 
-Check that:
+@app.before_request
+def validate_request():
+    if request.method == "POST" and request.path == "/api/speaking-test":
+        if not request.is_json:
+            logger.warning(f"Invalid Content-Type at {request.path}")
+            return jsonify({"error": "Content-Type must be application/json"}), 400
+        data = request.get_json()
+        if "question" not in data:
+            logger.warning(f"Missing 'question' field at {request.path}")
+            return jsonify({"error": "Missing required field: question"}), 400
+```
 
-Valid requests succeed and are logged.
+### 4. Define API Endpoint
 
-Invalid requests are rejected and logged with appropriate errors.
+* Create a POST route: `/api/speaking-test`
+* Process and log valid submissions.
 
-All logs are written to app.log.
+```python
+@app.route("/api/speaking-test", methods=["POST"])
+def speaking_test():
+    data = request.get_json()
+    question = data["question"]
+    logger.info(f"Received question: {question} at {request.path}")
+    return jsonify({"message": "Question received successfully"}), 200
+```
 
-7. Prepare Submission
-   Include:
+### 5. Implement Error Handling Middleware
 
-app.py with all code.
+* Use `@app.errorhandler` decorators for:
 
-app.log file with sample logs.
+  * 400 Bad Request
+  * 404 Not Found
+  * 500 Internal Server Error
+  * Generic `Exception`
+* Log all error details using `logger.error()` or `logger.exception()`.
 
-Screenshots or test results.
+```python
+@app.errorhandler(400)
+def bad_request(e):
+    logger.error(f"400 Error at {request.path} - {e}")
+    return jsonify({"error": "Bad Request"}), 400
+
+@app.errorhandler(404)
+def not_found(e):
+    logger.error(f"404 Error at {request.path} - {e}")
+    return jsonify({"error": "Not Found"}), 404
+
+@app.errorhandler(500)
+def server_error(e):
+    logger.exception(f"500 Error at {request.path} - {e}")
+    return jsonify({"error": "Internal Server Error"}), 500
+
+@app.errorhandler(Exception)
+def unhandled_exception(e):
+    logger.exception(f"Unhandled Exception at {request.path} - {e}")
+    return jsonify({"error": "An unexpected error occurred"}), 500
+```
+
+### 6. Testing
+
+* Use **Postman** or **curl** to simulate:
+
+  * ✅ Valid POST requests (with `"question"`).
+  * ❌ Invalid POST requests (missing JSON or required fields).
+* Verify that:
+
+  * Valid requests return `200 OK` and are logged.
+  * Invalid requests return errors and logs are generated.
+  * `app.log` contains all entries.
+
+---
+
+## 📁 Deliverables
+
+* ✅ `app.py` with Flask app, logging, middleware, and routes.
+* 📝 `app.log` file with sample log entries.
+* 📸 Screenshots or test results from Postman/curl showing:
+
+  * Success and error responses.
+* ✅ Summary of test cases and expected vs. actual results.
+
+---
+
+## 📊 Evaluation Criteria
+
+| Criterion                  | Weight |
+| -------------------------- | ------ |
+| ✅ Request Validation       | 40%    |
+| 🧾 Structured Logging      | 30%    |
+| ⚠️ Error Handling          | 20%    |
+| 📦 Submission Completeness | 10%    |
+
+---
+
+## ⚙️ Notes & Best Practices
+
+* Do **not** log sensitive user information.
+* Use `logger.exception()` to capture tracebacks automatically for unhandled errors.
+* Logging format should support future integration with monitoring tools like ELK Stack or Sentry.
+* Maintain separation of concerns between middleware, routes, and logging.
+
+---
+
+Let me know if you'd like the actual `app.py` code prewritten for you!
