@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Template 7</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background-color: #fdfdfd;
+        }
+        .header {
+            background-color: #494f55; /* A grayish background */
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+        .header p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        .main {
+            display: flex;
+            max-width: 1000px;
+            margin: 20px auto;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .left-section {
+            width: 70%;
+            padding: 20px;
+        }
+        .right-section {
+            width: 30%;
+            background-color: #f7f7f7;
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #494f55;
+            border-bottom: 2px solid #494f55;
+            padding-bottom: 5px;
+        }
+        .section p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>{name}</h1>
+    <p>{contact_info} | {location}</p>
+</div>
+
+<div class="main">
+    <!-- LEFT SECTION -->
+    <div class="left-section">
+        <div class="section">
+            <h2>Professional Summary</h2>
+            <p>{summary}</p>
+        </div>
+
+        <div class="section">
+            <h2>Work Experience</h2>
+            {work_experience}
+        </div>
+
+        <div class="section">
+            <h2>Projects</h2>
+            {projects}
+        </div>
+
+        <div class="section">
+            <h2>Education</h2>
+            {education}
+        </div>
+    </div>
+
+    <!-- RIGHT SECTION -->
+    <div class="right-section">
+        <div class="section">
+            <h2>Technical Skills</h2>
+            {skills}
+        </div>
+
+        <div class="section">
+            <h2>Certifications</h2>
+            {certifications}
+        </div>
+
+        <div class="section">
+            <h2>Languages</h2>
+            {languages}
+        </div>
+
+        <div class="section">
+            <h2>Additional Info</h2>
+            {custom_fields}
+        </div>
+    </div>
+</div>
+</body>
+</html>

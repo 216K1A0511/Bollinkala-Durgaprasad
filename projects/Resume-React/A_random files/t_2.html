@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Resume Template 6</title>
+  <style>
+    /* A4 Page Settings */
+    body {
+      width: 210mm;
+      height: 297mm;
+      margin: 0;
+      padding: 15mm;
+      font-family: 'Times New Roman', serif;
+      background: #f5f5f5;
+      color: #222;
+    }
+    .container {
+      background: #fff;
+      padding: 20mm;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .header {
+      border-bottom: 3px solid #000;
+      text-align: center;
+      margin-bottom: 15mm;
+    }
+    .header h1 {
+      font-size: 28pt;
+      margin: 0;
+    }
+    .info {
+      text-align: center;
+      margin-bottom: 10mm;
+      font-size: 10pt;
+    }
+    .section {
+      margin-bottom: 10mm;
+    }
+    .section h2 {
+      font-size: 16pt;
+      background: #000;
+      color: #fff;
+      padding: 5px;
+      margin: 0 -20mm 10px -20mm;
+    }
+    .section p {
+      margin: 0 0 5px 0;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>{name}</h1>
+    </div>
+    <div class="info">
+      <p>{contact_info} | {location}</p>
+    </div>
+    <div class="section">
+      <h2>Summary</h2>
+      <p>{summary}</p>
+    </div>
+    
+    <!-- Dynamic Sections -->
+    {section_education}
+    {section_work_experience}
+    {section_projects}
+    {section_skills}
+    {section_certifications}
+    {section_languages}
+    {section_custom-fields}
+  </div>
+</body>
+</html>

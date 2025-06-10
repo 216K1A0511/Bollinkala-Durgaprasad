@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Template 5</title>
+    <style>
+        body {
+            font-family: "Helvetica", sans-serif;
+            background-color: #fafafa;
+            margin: 0;
+        }
+        .header {
+            background-color: #4f75c2; /* A moderate blue */
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+        .header p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        .main-content {
+            display: flex;
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .left-column, .right-column {
+            width: 50%;
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            color: #4f75c2;
+            border-bottom: 2px solid #4f75c2;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .section p {
+            margin: 5px 0;
+            line-height: 1.5em;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>{name}</h1>
+    <p>{contact_info} | {location}</p>
+</div>
+
+<div class="main-content">
+    <div class="left-column">
+        <div class="section">
+            <h2>Professional Summary</h2>
+            <p>{summary}</p>
+        </div>
+
+        <div class="section">
+            <h2>Work Experience</h2>
+            {work_experience}
+        </div>
+
+        <div class="section">
+            <h2>Projects</h2>
+            {projects}
+        </div>
+    </div>
+
+    <div class="right-column">
+        <div class="section">
+            <h2>Skills</h2>
+            {skills}
+        </div>
+
+        <div class="section">
+            <h2>Education</h2>
+            {education}
+        </div>
+
+        <div class="section">
+            <h2>Certifications</h2>
+            {certifications}
+        </div>
+
+        <div class="section">
+            <h2>Languages</h2>
+            {languages}
+        </div>
+
+        <div class="section">
+            <h2>Additional Info</h2>
+            {custom_fields}
+        </div>
+    </div>
+</div>
+</body>
+</html>

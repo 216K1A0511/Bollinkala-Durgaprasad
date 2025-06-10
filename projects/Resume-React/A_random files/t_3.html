@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Dynamic Resume</title>
+  <style>
+    body { 
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+      margin: 0; 
+      padding: 0; 
+      background: #f9f9f9; 
+    }
+    .resume-container { 
+      max-width: 800px; 
+      margin: 40px auto; 
+      background: #fff; 
+      padding: 30px; 
+      box-shadow: 0 0 10px rgba(0,0,0,0.1); 
+    }
+    .header { 
+      text-align: center; 
+      border-bottom: 2px solid #333; 
+      padding-bottom: 15px; 
+      margin-bottom: 20px; 
+    }
+    .header h1 { 
+      font-size: 36px; 
+      margin: 0; 
+    }
+    .header p { 
+      font-size: 16px; 
+      margin: 5px 0; 
+    }
+    .section { 
+      margin-bottom: 20px; 
+    }
+    .section h2 { 
+      font-size: 24px; 
+      color: #333; 
+      border-bottom: 1px solid #ddd; 
+      padding-bottom: 5px; 
+      margin-bottom: 10px; 
+    }
+    .section p { 
+      font-size: 16px; 
+      line-height: 1.5; 
+      margin: 5px 0; 
+    }
+    .custom-field { 
+      margin-bottom: 20px; 
+    }
+    .custom-field h2 { 
+      font-size: 24px; 
+      color: #333; 
+      border-bottom: 1px solid #ddd; 
+      padding-bottom: 5px; 
+      margin-bottom: 10px; 
+    }
+  </style>
+</head>
+<body>
+  <div class="resume-container">
+    <div class="header">
+      <h1>{name}</h1>
+      <p>{contact_info}</p>
+      <p>{location}</p>
+    </div>
+    
+    <div class="section">
+      <h2>Professional Summary</h2>
+      <p>{summary}</p>
+    </div>
+    
+    <div class="section">
+      <h2>Education</h2>
+      {education}
+    </div>
+    
+    <div class="section">
+      <h2>Work Experience</h2>
+      {work_experience}
+    </div>
+    
+    <div class="section">
+      <h2>Projects</h2>
+      {projects}
+    </div>
+    
+    <div class="section">
+      <h2>Skills</h2>
+      {skills}
+    </div>
+    
+    <div class="section">
+      <h2>Certifications</h2>
+      {certifications}
+    </div>
+    
+    <div class="section">
+      <h2>Languages</h2>
+      {languages}
+    </div>
+    
+    <!-- Custom fields: each custom field's name will appear dynamically as an H2 heading -->
+    <div class="section">
+      {custom_fields}
+    </div>
+  </div>
+</body>
+</html>
