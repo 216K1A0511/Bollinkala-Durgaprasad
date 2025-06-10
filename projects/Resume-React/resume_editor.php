@@ -1,0 +1,618 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_logged_in'])) {
+    header("Location: login.php");
+    exit();
+}
+include 'includes/db.php';
+$user_id = $_SESSION['user_id'];
+
+// Set default resume data and template.
+$resumeData = [
+    "name" => "",
+    "contact_info" => "",
+    "location" => "",
+    "summary" => "",
+    "education" => [],
+    "work_experience" => [],
+    "projects" => [],
+    "skills" => [],
+    "certifications" => [],
+    "languages" => [],
+    "custom_fields" => []
+];
+$template_selected = "templates/template4.html";
+
+// Check if a resume is being loaded for editing via GET parameter.
+$savedResumeId = isset($_GET['resume_id']) ? intval($_GET['resume_id']) : 0;
+if ($savedResumeId > 0) {
+    $stmt = $conn->prepare("SELECT resume_data, template_file FROM saved_resumes WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ii", $savedResumeId, $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if($result->num_rows > 0){
+        $row = $result->fetch_assoc();
+        $loadedData = json_decode($row['resume_data'], true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            // Merge loaded data with defaults (so that missing keys are still set)
+            $resumeData = array_merge($resumeData, $loadedData);
+        }
+        $template_selected = $row['template_file'] ?? $template_selected;
+    }
+    $stmt->close();
+} else {
+    // Optionally load the most recent resume from saved_resumes if you want:
+    $stmt = $conn->prepare("SELECT template_file, resume_data FROM saved_resumes WHERE user_id = ? ORDER BY created_at DESC LIMIT 1");
+    if ($stmt) {
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $loadedData = json_decode($row['resume_data'], true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $resumeData = array_merge($resumeData, $loadedData);
+            }
+            $template_selected = $row['template_file'] ?? $template_selected;
+        }
+        $stmt->close();
+    }
+}
+
+// Get available templates for the template selection modal.
+$result_templates = $conn->query("SELECT template_name, file_path, preview_image FROM templates ORDER BY id ASC");
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Resume Editor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- jQuery, Bootstrap, Font Awesome, html2pdf, and html2canvas -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap CSS & JS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        .container-fluid { height: 100vh; display: flex; }
+        .input-column { flex: 1; overflow-y: auto; padding: 1rem; }
+        .preview-column { padding: 1rem; background: #f8f9fa; }
+        /* A4 page dimensions in pixels (approx 210mm x 297mm) */
+        .a4-page {
+            width: 794px;
+            height: 1123px;
+            margin: 10px auto;
+            background: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .page-container {
+            display: none; /* Only one page visible at a time */
+        }
+        .page-container.active {
+            display: block;
+        }
+        .toolbar { display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; }
+        .form-section { margin-bottom: 20px; }
+        .section-entry, .custom-field-group { margin-bottom: 15px; border: 1px solid #ddd; padding: 10px; }
+        .removed { opacity: 0.4; }
+        #pagesWrapper { overflow-y: auto; max-height: calc(100vh - 200px); }
+        #previewFrame { width: 100%; height: 100%; border: none; }
+        .header-buttons { display: flex; gap: 5px; }
+        .hidden-section { display: none; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="#">Resume Editor</a>
+            <div>
+                <button class="btn btn-primary" id="saveResume">Save</button>
+                <button class="btn btn-info" id="savedResumes">Saved Resumes</button>
+                <button class="btn btn-danger" onclick="window.location.href='logout.php'">Logout</button>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <!-- Input Column -->
+        <div class="input-column">
+            <form id="resumeForm">
+                <!-- Personal Details Section -->
+                <div class="card form-section" data-section="personal-details">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        Personal Details
+                        <div class="header-buttons">
+                            <button type="button" class="toggle-section btn btn-warning btn-sm" data-section="personal-details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <!-- Delete entire personal details section -->
+                            <button type="button" class="remove-section-btn btn btn-danger btn-sm" data-section="personal-details">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body" id="section-personal-details" data-hidden="false" data-removed="false">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" class="form-control" name="name" value="<?= htmlspecialchars($resumeData['name']) ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Information</label>
+                            <input type="text" class="form-control" name="contact_info" value="<?= htmlspecialchars($resumeData['contact_info']) ?>">
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" class="form-control" name="location" value="<?= htmlspecialchars($resumeData['location']) ?>">
+                        </div>
+                        <div class="form-group">
+                            <label>Professional Summary</label>
+                            <textarea class="form-control" name="summary" rows="3"><?= htmlspecialchars($resumeData['summary']) ?></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Sections for Education, Work Experience, Projects, Skills, Certifications, Languages -->
+                <?php
+                $sections = [
+                    'education' => ['school', 'year', 'degree'],
+                    'work_experience' => ['company', 'position', 'start_date', 'end_date', 'description'],
+                    'projects' => ['name', 'description', 'technologies'],
+                    'skills' => ['name', 'proficiency'],
+                    'certifications' => ['name', 'issuer', 'date'],
+                    'languages' => ['name', 'proficiency']
+                ];
+                ?>
+                <?php foreach ($sections as $key => $fields): ?>
+                <div class="card form-section" data-section="<?= $key ?>">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <?= ucwords(str_replace('_', ' ', $key)) ?>
+                        <div class="header-buttons">
+                            <button type="button" class="toggle-section btn btn-warning btn-sm" data-section="<?= $key ?>">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <!-- Delete entire section -->
+                            <button type="button" class="remove-section-btn btn btn-danger btn-sm" data-section="<?= $key ?>">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body" id="section-<?= $key ?>" data-hidden="false" data-removed="false">
+                        <?php if (is_array($resumeData[$key])): ?>
+                            <?php foreach ($resumeData[$key] as $uid => $entry): ?>
+                                <div class="section-entry" data-uid="<?= htmlspecialchars($uid) ?>">
+                                    <?php foreach ($fields as $field): ?>
+                                        <div class="form-group">
+                                            <label><?= ucfirst(str_replace('_', ' ', $field)) ?></label>
+                                            <input type="text" class="form-control" name="<?= $key ?>[<?= htmlspecialchars($uid) ?>][<?= $field ?>]" value="<?= htmlspecialchars($entry[$field] ?? '') ?>">
+                                        </div>
+                                    <?php endforeach; ?>
+                                    <button type="button" class="btn btn-danger btn-sm remove-btn">Delete Entry</button>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                        <button type="button" class="btn btn-success btn-sm add-btn" data-section="<?= $key ?>">Add <?= ucwords(str_replace('_', ' ', $key)) ?></button>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+
+                <!-- Custom Fields Section -->
+                <div class="card form-section" data-section="custom-fields">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        Custom Fields
+                        <div class="header-buttons">
+                            <button type="button" class="toggle-section btn btn-warning btn-sm" data-section="custom-fields">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <!-- Delete entire custom fields section -->
+                            <button type="button" class="remove-section-btn btn btn-danger btn-sm" data-section="custom-fields">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body" id="section-custom-fields" data-hidden="false" data-removed="false">
+                        <?php if (is_array($resumeData['custom_fields'])): ?>
+                            <?php foreach ($resumeData['custom_fields'] as $uid => $field): ?>
+                                <div class="custom-field-group" data-uid="<?= htmlspecialchars($uid) ?>">
+                                    <label>Field Name</label>
+                                    <input type="text" class="form-control" name="custom_fields_name[<?= htmlspecialchars($uid) ?>]" value="<?= htmlspecialchars($field['name'] ?? '') ?>" placeholder="Field Name">
+                                    <label class="mt-2">Field Content</label>
+                                    <textarea class="form-control mt-2" name="custom_fields_content[<?= htmlspecialchars($uid) ?>]" placeholder="Field Content"><?= htmlspecialchars($field['content'] ?? '') ?></textarea>
+                                    <button type="button" class="btn btn-danger btn-sm remove-btn">Delete Field</button>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                        <button type="button" class="btn btn-success btn-sm add-btn" data-section="custom-fields">Add Custom Field</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Preview Column -->
+        <div class="preview-column">
+            <div class="toolbar">
+                <button class="btn btn-info" id="openTemplateModal">Select Template</button>
+                <button class="btn btn-primary" id="downloadPdf">Download PDF</button>
+                <button class="btn btn-secondary" id="downloadDoc">Download DOC</button>
+                <!-- Navigation buttons -->
+                <button class="btn btn-outline-secondary" id="prevPage">Previous Page</button>
+                <button class="btn btn-outline-secondary" id="nextPage">Next Page</button>
+                <input type="hidden" id="selectedTemplate" name="template" value="<?= htmlspecialchars($template_selected) ?>">
+            </div>
+            <div class="preview-container">
+                <!-- Pages will be inserted here -->
+                <div id="pagesWrapper"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Selection Modal (if needed) -->
+    <?php include 'select_template.php'; ?>
+
+    <!-- Saved Resumes Modal -->
+    <div class="modal fade" id="savedResumesModal" tabindex="-1" role="dialog" aria-labelledby="savedResumesModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="savedResumesModalLabel">Saved Resumes</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+             <!-- Content loaded via AJAX from get_saved_resumes.php -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript for live preview, dynamic fields, pagination and AJAX actions -->
+    <script>
+        let currentTemplateHtml = '';
+        // Define counters for each section for unique IDs.
+        let sectionCounters = {
+            education: 0,
+            work_experience: 0,
+            projects: 0,
+            skills: 0,
+            certifications: 0,
+            languages: 0,
+            "custom-fields": 0
+        };
+
+        // Global pagination variables.
+        let pages = [];
+        let currentPageIndex = 0;
+
+        // Helper function to escape HTML.
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Helper to capitalize first letter of each word.
+        function ucwords(str) {
+            return str.replace(/\b\w/g, function(letter) { return letter.toUpperCase(); });
+        }
+
+        // Helper function to build content HTML for a dynamic section.
+        function buildSectionContent(section) {
+            let sectionHtml = "";
+            const $sectionContainer = $('#section-' + section);
+            $sectionContainer.find('.section-entry').each(function() {
+                if ($(this).hasClass('removed')) return;
+                const entryData = {};
+                $(this).find('input').each(function() {
+                    const nameAttr = $(this).attr('name');
+                    const regex = new RegExp(section + "\\[([^\\]]+)\\]\\[(\\w+)\\]");
+                    const match = nameAttr.match(regex);
+                    if (match) {
+                        entryData[match[2]] = $(this).val();
+                    }
+                });
+                sectionHtml += buildEntryHtml(section, entryData);
+            });
+            return sectionHtml;
+        }
+
+        // Build HTML for a single entry based on section type.
+        function buildEntryHtml(section, entryData) {
+            if (section === "education") {
+                return `<p>${escapeHtml(entryData.school || '')} - ${escapeHtml(entryData.degree || '')} (${escapeHtml(entryData.year || '')})</p>`;
+            } else if (section === "work_experience") {
+                return `<p><strong>${escapeHtml(entryData.position || '')}</strong> at ${escapeHtml(entryData.company || '')}<br>
+                        ${escapeHtml(entryData.start_date || '')} - ${escapeHtml(entryData.end_date || '')}<br>
+                        ${escapeHtml(entryData.description || '')}</p>`;
+            } else if (section === "projects") {
+                return `<p><strong>${escapeHtml(entryData.name || '')}</strong>: ${escapeHtml(entryData.description || '')}<br>
+                        Technologies: ${escapeHtml(entryData.technologies || '')}</p>`;
+            } else if (section === "skills") {
+                return `<p>${escapeHtml(entryData.name || '')} (${escapeHtml(entryData.proficiency || '')})</p>`;
+            } else if (section === "certifications") {
+                return `<p>${escapeHtml(entryData.name || '')} - ${escapeHtml(entryData.issuer || '')} (${escapeHtml(entryData.date || '')})</p>`;
+            } else if (section === "languages") {
+                return `<p>${escapeHtml(entryData.name || '')} (${escapeHtml(entryData.proficiency || '')})</p>`;
+            } else {
+                let output = "";
+                for (const key in entryData) {
+                    output += `<p><strong>${escapeHtml(key)}:</strong> ${escapeHtml(entryData[key] || '')}</p>`;
+                }
+                return output;
+            }
+        }
+
+        // Build custom fields content.
+        function buildCustomFieldsContent() {
+            let customHtml = "";
+            const customSection = $('#section-custom-fields');
+            customSection.find('.custom-field-group').each(function() {
+                const nameVal = $(this).find('[name^="custom_fields_name"]').val();
+                const contentVal = $(this).find('[name^="custom_fields_content"]').val();
+                if (nameVal || contentVal) {
+                    customHtml += `<div class="custom-field">`;
+                    if (nameVal) {
+                        customHtml += `<h2>${escapeHtml(nameVal)}</h2>`;
+                    }
+                    customHtml += `<p>${escapeHtml(contentVal)}</p>`;
+                    customHtml += `</div>`;
+                }
+            });
+            return customHtml;
+        }
+
+        // Pagination: Split the full HTML into A4-sized pages.
+        function paginateContent(fullContent) {
+            pages = [];
+            $("#pagesWrapper").empty();
+
+            // Create a temporary container.
+            let $tempContainer = $("<div>").html(fullContent);
+            // Create first page.
+            let $currentPage = $("<div>").addClass("a4-page");
+            pages.push($currentPage);
+
+            // Append each child element from the temp container.
+            $tempContainer.children().each(function() {
+                let $child = $(this);
+                $currentPage.append($child);
+                // Check if content exceeds page height.
+                if ($currentPage.prop("scrollHeight") > $currentPage.height()) {
+                    // Remove the element and start a new page.
+                    $child.detach();
+                    $currentPage = $("<div>").addClass("a4-page");
+                    pages.push($currentPage);
+                    $currentPage.append($child);
+                }
+            });
+
+            // Reset currentPageIndex and add pages to the wrapper.
+            currentPageIndex = 0;
+            pages.forEach((page, index) => {
+                let $pageContainer = $("<div>").addClass("page-container").append(page);
+                if (index === currentPageIndex) {
+                    $pageContainer.addClass("active");
+                }
+                $("#pagesWrapper").append($pageContainer);
+            });
+        }
+
+        // Updated updatePreview function using pagination.
+        function updatePreview() {
+            let previewHtml = currentTemplateHtml;
+            // Replace personal details placeholders.
+            let name = $('[name="name"]').val();
+            let contact_info = $('[name="contact_info"]').val();
+            let location = $('[name="location"]').val();
+            let summary = $('[name="summary"]').val();
+            previewHtml = previewHtml.replace(/\{name\}/g, escapeHtml(name));
+            previewHtml = previewHtml.replace(/\{contact_info\}/g, escapeHtml(contact_info));
+            previewHtml = previewHtml.replace(/\{location\}/g, escapeHtml(location));
+            previewHtml = previewHtml.replace(/\{summary\}/g, escapeHtml(summary));
+
+            // Process dynamic sections.
+            const sections = ['education', 'work_experience', 'projects', 'skills', 'certifications', 'languages'];
+            sections.forEach(function(section) {
+                const $sectionContainer = $('#section-' + section);
+                let sectionBlock = "";
+                if ($sectionContainer.data('removed') === true || $sectionContainer.data('hidden') === true) {
+                    sectionBlock = "";
+                } else {
+                    let headerText = ucwords(section.replace('_', ' '));
+                    let contentHtml = buildSectionContent(section);
+                    if (contentHtml.trim() !== "") {
+                        sectionBlock = `<div class="section"><h2>${escapeHtml(headerText)}</h2>${contentHtml}</div>`;
+                    }
+                }
+                previewHtml = previewHtml.replace("{" + "section_" + section + "}", sectionBlock);
+            });
+
+            // Process custom fields.
+            const $customContainer = $('#section-custom-fields');
+            let customBlock = "";
+            if ($customContainer.data('removed') !== true && $customContainer.data('hidden') !== true) {
+                let customContent = buildCustomFieldsContent();
+                if (customContent.trim() !== "") {
+                    customBlock = `<div class="section">${customContent}</div>`;
+                }
+            }
+            previewHtml = previewHtml.replace("{section_custom-fields}", customBlock);
+            previewHtml = previewHtml.replace(/\{\w+\}/g, '');
+
+            // Paginate the preview content into A4 pages.
+            paginateContent(previewHtml);
+        }
+
+        $(document).ready(function() {
+            // Load initial template.
+            const initialTemplate = $('#selectedTemplate').val();
+            if (initialTemplate) {
+                $.get(initialTemplate, function(data) {
+                    currentTemplateHtml = data;
+                    updatePreview();
+                }).fail(function() {
+                    console.error('Failed to load initial template');
+                    $("#pagesWrapper").html('<p>Error loading template.</p>');
+                });
+            }
+
+            // Toggle section visibility.
+            $('.toggle-section').click(function() {
+                const section = $(this).data('section');
+                const $sectionBody = $('#section-' + section);
+                let hidden = $sectionBody.data('hidden');
+                $sectionBody.data('hidden', !hidden);
+                $(this).find('i').toggleClass('fa-eye fa-eye-slash');
+                updatePreview();
+            });
+
+            // Remove entire section.
+            $(document).on("click", ".remove-section-btn", function() {
+                const section = $(this).data('section');
+                const $sectionBody = $('#section-' + section);
+                $sectionBody.data('removed', !$sectionBody.data('removed'));
+                $(this).toggleClass('btn-danger btn-success');
+                updatePreview();
+            });
+
+            // Delete individual entry or custom field.
+            $(document).on("click", ".remove-btn", function() {
+                $(this).closest(".section-entry, .custom-field-group").remove();
+                updatePreview();
+            });
+
+            // Add dynamic fields.
+            $(".add-btn").click(function() {
+                const section = $(this).data("section");
+                const sectionContainer = $(`#section-${section}`);
+                sectionCounters[section] = (sectionCounters[section] || 0) + 1;
+                const uniqueId = section + '-' + sectionCounters[section];
+                let newEntryHtml = '';
+                if (section === 'custom-fields') {
+                    newEntryHtml = `
+                        <div class="custom-field-group" data-uid="${uniqueId}">
+                            <label>Field Name</label>
+                            <input type="text" class="form-control" name="custom_fields_name[${uniqueId}]" placeholder="Field Name">
+                            <label class="mt-2">Field Content</label>
+                            <textarea class="form-control mt-2" name="custom_fields_content[${uniqueId}]" placeholder="Field Content"></textarea>
+                            <button type="button" class="btn btn-danger btn-sm remove-btn">Delete Field</button>
+                        </div>`;
+                } else {
+                    const fields = <?= json_encode($sections) ?>[section];
+                    newEntryHtml = `<div class="section-entry" data-uid="${uniqueId}">`;
+                    fields.forEach(function(field) {
+                        newEntryHtml += `
+                            <div class="form-group">
+                                <label>${ucwords(field.replace('_', ' '))}</label>
+                                <input type="text" class="form-control" name="${section}[${uniqueId}][${field}]">
+                            </div>`;
+                    });
+                    newEntryHtml += `<button type="button" class="btn btn-danger btn-sm remove-btn">Delete Entry</button></div>`;
+                }
+                sectionContainer.append(newEntryHtml);
+                updatePreview();
+            });
+
+            // Update preview on form input changes.
+            $("#resumeForm").on("input change", "input, textarea", updatePreview);
+
+            // Template selection.
+            $(document).on("click", ".template-thumb", function() {
+                const file = $(this).data("file");
+                $("#selectedTemplate").val(file);
+                $.get(file, function(data) {
+                    currentTemplateHtml = data;
+                    updatePreview();
+                }).fail(function() {
+                    console.error('Failed to load template');
+                    $("#pagesWrapper").html('<p>Error loading template.</p>');
+                });
+                $("#templateModal").fadeOut("fast", function() {
+                    $(this).css("display", "none");
+                });
+            });
+
+            // Download PDF.
+            $("#downloadPdf").click(function() {
+                // For PDF download, you might choose to combine all pages.
+                let combinedHtml = "";
+                pages.forEach(function(page) {
+                    combinedHtml += page[0].outerHTML;
+                });
+                html2pdf().from(combinedHtml).save('resume.pdf');
+            });
+
+            // Download DOC.
+            $("#downloadDoc").click(function() {
+                let combinedContent = "";
+                pages.forEach(function(page) {
+                    combinedContent += page[0].outerHTML;
+                });
+                var blob = new Blob([combinedContent], { type: 'application/msword' });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'resume.doc';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            });
+
+            // Save resume via AJAX.
+            $("#saveResume").click(function(){
+                var formData = $("#resumeForm").serialize();
+                // Combine all pages' HTML for saving.
+                let combinedDoc = "";
+                pages.forEach(function(page) {
+                    combinedDoc += page[0].outerHTML;
+                });
+                $.ajax({
+                    url: 'save_resume.php',
+                    method: 'POST',
+                    data: formData + '&docContent=' + encodeURIComponent(combinedDoc) + '&template=' + encodeURIComponent($("#selectedTemplate").val()),
+                    success: function(response){
+                        alert("Resume saved successfully!");
+                    },
+                    error: function(){
+                        alert("Error saving resume.");
+                    }
+                });
+            });
+
+            // Load Saved Resumes via AJAX and open modal.
+            $("#savedResumes").click(function(){
+                $.ajax({
+                    url: 'get_saved_resumes.php',
+                    method: 'GET',
+                    success: function(response){
+                        $("#savedResumesModal .modal-body").html(response);
+                        $("#savedResumesModal").modal("show");
+                    },
+                    error: function(){
+                        alert("Error fetching saved resumes.");
+                    }
+                });
+            });
+
+            // Navigation button actions.
+            $("#prevPage").click(function() {
+                if (currentPageIndex > 0) {
+                    currentPageIndex--;
+                    $(".page-container").removeClass("active").eq(currentPageIndex).addClass("active");
+                }
+            });
+            $("#nextPage").click(function() {
+                if (currentPageIndex < pages.length - 1) {
+                    currentPageIndex++;
+                    $(".page-container").removeClass("active").eq(currentPageIndex).addClass("active");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
