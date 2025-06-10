@@ -1,0 +1,77 @@
+<div class="template-preview">
+  <style>
+    /* Professional Corporate Style – Fitting the preview box */
+    .template-preview {
+      width: 100%;
+      background: transparent;
+      padding: 15px;
+      box-sizing: border-box;
+    }
+    .template-preview * {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      box-sizing: border-box;
+      color: #2e2e2e;
+    }
+    .template-preview .header {
+      text-align: left;
+      margin-bottom: 10px;
+      border-bottom: 3px solid #003366;
+      padding-bottom: 5px;
+    }
+    .template-preview .header h1 {
+      font-size: 36px;
+      color: #003366;
+    }
+    .template-preview .header p {
+      font-size: 16px;
+      color: #555;
+      margin-top: 5px;
+    }
+    .template-preview .summary {
+      font-size: 16px;
+      margin: 15px 0;
+      padding: 8px;
+      background: #ffffff;
+      border-left: 4px solid #003366;
+      text-align: left;
+    }
+    .template-preview .section {
+      margin-bottom: 10px;
+      padding: 8px 10px;
+      background: #ffffff;
+      border: 1px solid #ddd;
+    }
+    .template-preview .section h2 {
+      font-size: 22px;
+      margin-bottom: 5px;
+      color: #003366;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 3px;
+    }
+    .template-preview .section p {
+      font-size: 15px;
+      margin: 4px 0;
+      line-height: 1.6;
+    }
+  </style>
+
+  <!-- Header -->
+  <div class="header">
+    <h1>{name}</h1>
+    <p>{contact_info} | {location}</p>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary">
+    <p>{summary}</p>
+  </div>
+
+  <!-- Dynamic Sections -->
+  {section_education}
+  {section_work_experience}
+  {section_projects}
+  {section_skills}
+  {section_certifications}
+  {section_languages}
+  {section_custom-fields}
+</div>

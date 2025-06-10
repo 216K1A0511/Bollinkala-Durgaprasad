@@ -1,0 +1,67 @@
+<div class="template-preview">
+    <style>
+      /* Classic Elegance Style – Fitting the preview box */
+      .template-preview {
+        width: 100%;
+        background: transparent;
+        padding: 15px;
+        box-sizing: border-box;
+      }
+      .template-preview * {
+        font-family: "Times New Roman", serif;
+        color: #000;
+        box-sizing: border-box;
+      }
+      .template-preview .header {
+        text-align: left;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #000;
+        padding-bottom: 5px;
+      }
+      .template-preview .header h1 {
+        font-size: 32px;
+      }
+      .template-preview .header p {
+        font-size: 18px;
+        margin-top: 5px;
+      }
+      .template-preview .summary {
+        margin: 20px 0;
+        font-size: 18px;
+      }
+      .template-preview .section {
+        margin-bottom: 15px;
+      }
+      .template-preview .section h2 {
+        font-size: 26px;
+        margin-bottom: 5px;
+        border-bottom: 1px dashed #666;
+        padding-bottom: 3px;
+      }
+      .template-preview .section p {
+        font-size: 16px;
+        margin: 5px 0;
+      }
+    </style>
+  
+    <!-- Header -->
+    <div class="header">
+      <h1>{name}</h1>
+      <p>{contact_info} | {location}</p>
+    </div>
+  
+    <!-- Summary -->
+    <div class="summary">
+      <p>{summary}</p>
+    </div>
+  
+    <!-- Dynamic Sections -->
+    {section_education}
+    {section_work_experience}
+    {section_projects}
+    {section_skills}
+    {section_certifications}
+    {section_languages}
+    {section_custom-fields}
+  </div>
+  

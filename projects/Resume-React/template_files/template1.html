@@ -1,0 +1,70 @@
+<div class="template-preview">
+  <style>
+    /* Modern Clean Style – Fitting the preview box */
+    .template-preview {
+      width: 100%;
+      background: transparent; /* Let the preview container's background show */
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    .template-preview * {
+      font-family: Arial, sans-serif;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    .template-preview .header {
+      text-align: center;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+    .template-preview .header h1 {
+      font-size: 28px;
+      margin-bottom: 5px;
+    }
+    .template-preview .header p {
+      font-size: 16px;
+      color: #777;
+    }
+    .template-preview .summary {
+      margin: 15px 0;
+      font-style: italic;
+      text-align: center;
+    }
+    .template-preview .section {
+      margin-bottom: 15px;
+    }
+    .template-preview .section h2 {
+      font-size: 20px;
+      margin-bottom: 5px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 3px;
+    }
+    .template-preview .section p {
+      font-size: 16px;
+      margin: 4px 0;
+    }
+  </style>
+
+  <!-- Header -->
+  <div class="header">
+    <h1>{name}</h1>
+    <p>{contact_info} | {location}</p>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary">
+    <p>{summary}</p>
+  </div>
+
+  <!-- Dynamic Sections -->
+  {section_education}
+  {section_work_experience}
+  {section_projects}
+  {section_skills}
+  {section_certifications}
+  {section_languages}
+  {section_custom-fields}
+</div>

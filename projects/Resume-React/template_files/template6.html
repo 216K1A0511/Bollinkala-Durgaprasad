@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Template 6</title>
+    <style>
+        body {
+            font-family: "Verdana", sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        .resume-wrapper {
+            max-width: 900px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            border-bottom: 3px solid #000;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+        .header p {
+            margin: 5px 0;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+        }
+        .section p {
+            margin: 5px 0;
+            font-size: 0.9em;
+            line-height: 1.4em;
+        }
+    </style>
+</head>
+<body>
+<div class="resume-wrapper">
+    <div class="header">
+        <h1>{name}</h1>
+        <p>{contact_info} | {location}</p>
+    </div>
+
+    <div class="section">
+        <h2>Professional Summary</h2>
+        <p>{summary}</p>
+    </div>
+
+    <div class="section">
+        <h2>Work Experience</h2>
+        {work_experience}
+    </div>
+
+    <div class="section">
+        <h2>Projects</h2>
+        {projects}
+    </div>
+
+    <div class="section">
+        <h2>Skills</h2>
+        {skills}
+    </div>
+
+    <div class="section">
+        <h2>Education</h2>
+        {education}
+    </div>
+
+    <div class="section">
+        <h2>Certifications</h2>
+        {certifications}
+    </div>
+
+    <div class="section">
+        <h2>Languages</h2>
+        {languages}
+    </div>
+
+    <div class="section">
+        <h2>Additional Info</h2>
+        {custom_fields}
+    </div>
+</div>
+</body>
+</html>
