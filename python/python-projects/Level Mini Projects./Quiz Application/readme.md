@@ -69,9 +69,6 @@ run_quiz(questions)
 Feel free to fork and enhance the project—add new question formats, advanced features, or GUI components. Pull requests are welcome!
 
 ## License
-Below is a simple MIT License text for your "LICENSE" file. This license is widely used for open-source projects and allows others to use, modify, and distribute your code with minimal restriction.[1][2]
-
-***
 Copyright (c) 2025 Bollinkala Durgaprasad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
