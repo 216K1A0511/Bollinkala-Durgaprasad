@@ -1,8 +1,3 @@
-Here’s a **modern and professional `README.md`** version of your "About Me" section, perfect for a GitHub profile or portfolio repository:
-
----
-
-```markdown
 # 👋 Hi there, I'm B. Durga Prasad!
 
 ## 🚀 About Me
@@ -77,8 +72,3 @@ When I'm not coding, I enjoy:
 > _"Stay curious, stay humble, and keep building."_ 🚀  
 > — B. Durga Prasad
 
-```
-
----
-
-If you'd like, I can generate a **styled GitHub profile README** with badges, links to social media, portfolio, or even dynamic stats like GitHub streak and top languages. Let me know!
